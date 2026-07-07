@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_grc_root" name="GRC Assistant"
+              sequence="60" web_icon="grc_ai_assistant,static/description/icon.png"
+              groups="grc_ai_assistant.group_grc_user"/>
+
+    <menuitem id="menu_grc_dashboard" name="Tableau de bord"
+              parent="menu_grc_root" action="action_grc_dashboard" sequence="10"/>
+
+    <menuitem id="menu_grc_chat" name="Assistant IA"
+              parent="menu_grc_root" action="action_grc_chat_wizard" sequence="20"/>
+
+    <menuitem id="menu_grc_anomaly" name="Anomalies"
+              parent="menu_grc_root" action="action_grc_anomaly" sequence="30"/>
+
+    <menuitem id="menu_grc_log_entry" name="Journaux"
+              parent="menu_grc_root" action="action_grc_log_entry" sequence="40"
+              groups="grc_ai_assistant.group_grc_manager"/>
+
+    <menuitem id="menu_grc_configuration" name="Configuration"
+              parent="menu_grc_root" sequence="90"
+              groups="grc_ai_assistant.group_grc_manager"/>
+
+    <menuitem id="menu_grc_policy" name="Documents de politique"
+              parent="menu_grc_configuration" action="action_grc_policy" sequence="10"/>
+
+    <menuitem id="menu_grc_ai_session" name="Historique conversations"
+              parent="menu_grc_configuration" action="action_grc_ai_session" sequence="20"/>
+
+</odoo>

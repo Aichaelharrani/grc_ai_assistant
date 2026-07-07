@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_grc_log_entry_list" model="ir.ui.view">
+        <field name="name">grc.log.entry.list</field>
+        <field name="model">grc.log.entry</field>
+        <field name="arch" type="xml">
+            <list string="Journaux GRC" decoration-muted="is_analyzed">
+                <field name="event_datetime"/>
+                <field name="user_id"/>
+                <field name="ip_address"/>
+                <field name="action"/>
+                <field name="category"/>
+                <field name="source"/>
+                <field name="is_analyzed"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_grc_log_entry_form" model="ir.ui.view">
+        <field name="name">grc.log.entry.form</field>
+        <field name="model">grc.log.entry</field>
+        <field name="arch" type="xml">
+            <form string="Journal GRC">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="event_datetime"/>
+                            <field name="user_id"/>
+                            <field name="ip_address"/>
+                            <field name="action"/>
+                        </group>
+                        <group>
+                            <field name="category"/>
+                            <field name="source"/>
+                            <field name="odoo_model"/>
+                            <field name="is_analyzed"/>
+                        </group>
+                    </group>
+                    <field name="raw_payload" placeholder="Contenu brut du log..."/>
+                    <notebook>
+                        <page string="Anomalies liées">
+                            <field name="anomaly_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="anomaly_type"/>
+                                    <field name="risk_score"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_grc_log_entry_search" model="ir.ui.view">
+        <field name="name">grc.log.entry.search</field>
+        <field name="model">grc.log.entry</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher un journal">
+                <field name="user_id"/>
+                <field name="ip_address"/>
+                <field name="action"/>
+                <filter string="Non analysés" name="filter_not_analyzed"
+                        domain="[('is_analyzed', '=', False)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter string="Catégorie" name="group_category" context="{'group_by': 'category'}"/>
+                    <filter string="Utilisateur" name="group_user" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_grc_log_entry" model="ir.actions.act_window">
+        <field name="name">Journaux GRC</field>
+        <field name="res_model">grc.log.entry</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

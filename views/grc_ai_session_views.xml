@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_grc_ai_session_list" model="ir.ui.view">
+        <field name="name">grc.ai.session.list</field>
+        <field name="model">grc.ai.session</field>
+        <field name="arch" type="xml">
+            <list string="Historique des conversations IA">
+                <field name="create_date"/>
+                <field name="user_id"/>
+                <field name="question"/>
+                <field name="confidence_score"/>
+                <field name="response_time"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_grc_ai_session_form" model="ir.ui.view">
+        <field name="name">grc.ai.session.form</field>
+        <field name="model">grc.ai.session</field>
+        <field name="arch" type="xml">
+            <form string="Session de conversation">
+                <sheet>
+                    <group>
+                        <field name="user_id"/>
+                        <field name="model_used"/>
+                        <field name="confidence_score"/>
+                        <field name="response_time"/>
+                    </group>
+                    <field name="question"/>
+                    <field name="answer"/>
+                    <field name="source_ids">
+                        <list editable="bottom">
+                            <field name="policy_id"/>
+                            <field name="reference"/>
+                            <field name="similarity_score"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_grc_ai_session" model="ir.actions.act_window">
+        <field name="name">Historique des conversations</field>
+        <field name="res_model">grc.ai.session</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

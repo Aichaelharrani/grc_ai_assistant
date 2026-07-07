@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Seuils de détection (EF-02) -->
+        <record id="config_brute_force_attempts" model="ir.config_parameter">
+            <field name="key">grc_ai_assistant.brute_force_attempts</field>
+            <field name="value">5</field>
+        </record>
+        <record id="config_mass_export_records" model="ir.config_parameter">
+            <field name="key">grc_ai_assistant.mass_export_records</field>
+            <field name="value">500</field>
+        </record>
+        <record id="config_mass_deletion_records" model="ir.config_parameter">
+            <field name="key">grc_ai_assistant.mass_deletion_records</field>
+            <field name="value">50</field>
+        </record>
+
+        <!-- RGPD / Loi 09-08 (EF-06) -->
+        <record id="config_log_retention_days" model="ir.config_parameter">
+            <field name="key">grc_ai_assistant.log_retention_days</field>
+            <field name="value">90</field>
+        </record>
+        <record id="config_ip_anonymization_days" model="ir.config_parameter">
+            <field name="key">grc_ai_assistant.ip_anonymization_days</field>
+            <field name="value">30</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="module_category_grc" model="ir.module.category">
+            <field name="name">GRC Assistant</field>
+            <field name="description">Gouvernance, Risques et Conformité</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Accès en lecture seule aux tableaux de bord / anomalies -->
+        <record id="group_grc_user" model="res.groups">
+            <field name="name">Utilisateur GRC (lecture seule)</field>
+            <field name="category_id" ref="module_category_grc"/>
+        </record>
+
+        <!-- Accès complet : logs, anomalies, politiques, purge RGPD -->
+        <record id="group_grc_manager" model="res.groups">
+            <field name="name">GRC Manager</field>
+            <field name="category_id" ref="module_category_grc"/>
+            <field name="implied_ids" eval="[(4, ref('group_grc_user'))]"/>
+        </record>
+
+    </data>
+</odoo>

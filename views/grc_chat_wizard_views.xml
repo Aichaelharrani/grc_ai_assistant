@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- NOTE: Le modèle transient grc.chat.wizard doit être défini dans
+         models/ (ex: models/grc_chat_wizard.py) - non détaillé dans ce
+         squelette initial. Il appelle services/rag_pipeline.py::answer_question(). -->
+
+    <record id="view_grc_chat_wizard_form" model="ir.ui.view">
+        <field name="name">grc.chat.wizard.form</field>
+        <field name="model">grc.chat.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assistant IA GRC">
+                <sheet>
+                    <field name="question" placeholder="Posez votre question de conformité (ISO 27001, RGPD, Loi 09-08)..."/>
+                    <field name="answer" readonly="1"/>
+                    <field name="source_ids" readonly="1">
+                        <list>
+                            <field name="reference"/>
+                            <field name="excerpt"/>
+                            <field name="similarity_score"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_ask" type="object" string="Envoyer" class="btn-primary"/>
+                    <button string="Fermer" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_grc_chat_wizard" model="ir.actions.act_window">
+        <field name="name">Assistant IA GRC</field>
+        <field name="res_model">grc.chat.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

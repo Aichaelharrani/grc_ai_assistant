@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_grc_log_entry_user,grc.log.entry.user,model_grc_log_entry,group_grc_user,1,0,0,0
+access_grc_log_entry_manager,grc.log.entry.manager,model_grc_log_entry,group_grc_manager,1,1,1,1
+access_grc_anomaly_user,grc.anomaly.user,model_grc_anomaly,group_grc_user,1,0,0,0
+access_grc_anomaly_manager,grc.anomaly.manager,model_grc_anomaly,group_grc_manager,1,1,1,1
+access_grc_policy_user,grc.policy.user,model_grc_policy,group_grc_user,1,0,0,0
+access_grc_policy_manager,grc.policy.manager,model_grc_policy,group_grc_manager,1,1,1,1
+access_grc_ai_session_user,grc.ai.session.user,model_grc_ai_session,group_grc_user,1,1,1,0
+access_grc_ai_session_manager,grc.ai.session.manager,model_grc_ai_session,group_grc_manager,1,1,1,1
+access_grc_ai_session_source_user,grc.ai.session.source.user,model_grc_ai_session_source,group_grc_user,1,1,1,0
+access_grc_ai_session_source_manager,grc.ai.session.source.manager,model_grc_ai_session_source,group_grc_manager,1,1,1,1

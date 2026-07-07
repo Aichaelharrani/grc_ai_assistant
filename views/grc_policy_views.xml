@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_grc_policy_list" model="ir.ui.view">
+        <field name="name">grc.policy.list</field>
+        <field name="model">grc.policy</field>
+        <field name="arch" type="xml">
+            <list string="Documents de politique">
+                <field name="name"/>
+                <field name="source_type"/>
+                <field name="is_indexed"/>
+                <field name="chunk_count"/>
+                <field name="indexation_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_grc_policy_form" model="ir.ui.view">
+        <field name="name">grc.policy.form</field>
+        <field name="model">grc.policy</field>
+        <field name="arch" type="xml">
+            <form string="Document de politique">
+                <header>
+                    <button name="action_reindex" type="object" string="Réindexer" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="source_type"/>
+                        <field name="file_data" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                        <field name="is_indexed"/>
+                        <field name="chunk_count"/>
+                        <field name="chroma_collection"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_grc_policy" model="ir.actions.act_window">
+        <field name="name">Documents de politique</field>
+        <field name="res_model">grc.policy</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

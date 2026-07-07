@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Squelette de dashboard - à enrichir en OWL (static/src/js) pour les
+         indicateurs visuels : anomalies actives, score moyen, taux de conformité. -->
+    <record id="action_grc_dashboard" model="ir.actions.client">
+        <field name="name">Tableau de bord GRC</field>
+        <field name="tag">grc_ai_assistant.dashboard</field>
+    </record>
+
+</odoo>
