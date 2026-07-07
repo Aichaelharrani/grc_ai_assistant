@@ -1,1 +1,0 @@
-# grc_ai_assistant
