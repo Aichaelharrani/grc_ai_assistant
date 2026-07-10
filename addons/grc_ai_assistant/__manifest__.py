@@ -41,7 +41,8 @@ Développé dans le cadre du stage PFA - TRUSTIZI (INT/2026/0033).
         'security/grc_security_groups.xml',
         'security/ir.model.access.csv',
 
-        # Données (cron, paramètres par défaut)
+        # Données (séquences, cron, paramètres par défaut)
+        'data/ir_sequence_data.xml',
         'data/ir_cron_data.xml',
         'data/ir_config_parameter_data.xml',
 
@@ -57,8 +58,8 @@ Développé dans le cadre du stage PFA - TRUSTIZI (INT/2026/0033).
 
     'assets': {
         'web.assets_backend': [
-            # 'grc_ai_assistant/static/src/js/dashboard.js',
-            # 'grc_ai_assistant/static/src/css/dashboard.css',
+            'grc_ai_assistant/static/src/js/dashboard.js',
+            'grc_ai_assistant/static/src/xml/dashboard.xml',
         ],
     },
 

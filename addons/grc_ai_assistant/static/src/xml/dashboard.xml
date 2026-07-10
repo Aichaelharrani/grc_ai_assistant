@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="grc_ai_assistant.Dashboard">
+        <div class="o_grc_dashboard p-4">
+            <h2 class="mb-4">🛡️ Tableau de bord GRC</h2>
+
+            <div t-if="state.loading" class="text-muted">
+                Chargement des indicateurs...
+            </div>
+
+            <div t-else="" class="row g-3">
+                <div class="col-3">
+                    <div class="card text-center p-3" style="cursor: pointer;"
+                         t-on-click="() => this.openAnomalies([])">
+                        <h3 t-esc="state.totalAnomalies"/>
+                        <div class="text-muted">Anomalies totales</div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card text-center p-3" style="cursor: pointer;"
+                         t-on-click="() => this.openAnomalies([['state', '=', 'new']])">
+                        <h3 t-esc="state.newAnomalies"/>
+                        <div class="text-muted">Nouvelles</div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card text-center p-3 border-danger" style="cursor: pointer;"
+                         t-on-click="() => this.openAnomalies([['risk_level', '=', 'critical']])">
+                        <h3 class="text-danger" t-esc="state.criticalAnomalies"/>
+                        <div class="text-muted">Critiques</div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card text-center p-3">
+                        <h3 t-esc="state.avgRiskScore"/>
+                        <div class="text-muted">Score de risque moyen</div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-muted mt-4">
+                <em>Version initiale — les graphiques Chart.js (évolution des anomalies,
+                taux de conformité) seront ajoutés dans une prochaine itération.</em>
+            </p>
+        </div>
+    </t>
+
+</templates>

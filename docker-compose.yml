@@ -1,0 +1,115 @@
+version: "3.9"
+
+# ==============================================================================
+# GRC Assistant (Odoo 19) — TRUSTIZI — Stage INT/2026/0033
+# Stack 100% locale : Odoo 19 + PostgreSQL 16 + Ollama (Mistral 7B / nomic-embed-text)
+# Compatible Apple Silicon (Mac M2 Pro).
+# ==============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Base de données PostgreSQL 16+
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16
+    container_name: grc_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - grc_postgres_data:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - grc_network
+
+  # ---------------------------------------------------------------------------
+  # Odoo 19 — charge le module grc_ai_assistant depuis ./addons
+  # ---------------------------------------------------------------------------
+  odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile.odoo
+    image: grc_odoo:19
+    container_name: grc_odoo
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    volumes:
+      - ./addons:/mnt/extra-addons
+      - grc_odoo_data:/var/lib/odoo
+    ports:
+      - "8069:8069"
+      - "8072:8072"   # longpolling / websocket
+    command: >
+      odoo
+      --dev=all
+      --db_host=db
+      --db_user=odoo
+      --db_password=odoo
+      --addons-path=/mnt/extra-addons
+    networks:
+      - grc_network
+
+  # ---------------------------------------------------------------------------
+  # Ollama — moteur LLM 100% local (Mistral 7B + nomic-embed-text)
+  # Aucune donnée ni requête ne sort de ce conteneur.
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: grc_ollama
+    restart: unless-stopped
+    volumes:
+      - grc_ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # Décommenter sous Linux avec GPU NVIDIA :
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    networks:
+      - grc_network
+
+  # ---------------------------------------------------------------------------
+  # (Optionnel) ChromaDB en mode serveur HTTP, si tu préfères ne pas utiliser
+  # le PersistentClient embarqué de services/rag_pipeline.py.
+  # Décommente ce service et adapte rag_pipeline.py pour utiliser HttpClient.
+  # ---------------------------------------------------------------------------
+  # chromadb:
+  #   image: chromadb/chroma:latest
+  #   container_name: grc_chromadb
+  #   restart: unless-stopped
+  #   volumes:
+  #     - grc_chroma_data:/chroma/chroma
+  #   ports:
+  #     - "8000:8000"
+  #   networks:
+  #     - grc_network
+
+networks:
+  grc_network:
+    driver: bridge
+
+volumes:
+  grc_postgres_data:
+  grc_odoo_data:
+  grc_ollama_data:
+  # grc_chroma_data:

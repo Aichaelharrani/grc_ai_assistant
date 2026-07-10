@@ -9,3 +9,5 @@ access_grc_ai_session_user,grc.ai.session.user,model_grc_ai_session,group_grc_us
 access_grc_ai_session_manager,grc.ai.session.manager,model_grc_ai_session,group_grc_manager,1,1,1,1
 access_grc_ai_session_source_user,grc.ai.session.source.user,model_grc_ai_session_source,group_grc_user,1,1,1,0
 access_grc_ai_session_source_manager,grc.ai.session.source.manager,model_grc_ai_session_source,group_grc_manager,1,1,1,1
+access_grc_chat_wizard_user,grc.chat.wizard.user,model_grc_chat_wizard,group_grc_user,1,1,1,1
+access_grc_chat_wizard_source_user,grc.chat.wizard.source.user,model_grc_chat_wizard_source,group_grc_user,1,1,1,1

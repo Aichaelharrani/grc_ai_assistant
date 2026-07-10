@@ -1,0 +1,21 @@
+# ==============================================================================
+# GRC Assistant (Odoo 19) — TRUSTIZI — Stage INT/2026/0033
+# Image Odoo custom incluant les dépendances Python du pipeline RAG
+# (chromadb, requests). Ollama reste un service externe (conteneur séparé).
+# ==============================================================================
+
+FROM odoo:19
+
+USER root
+
+# Dépendances système éventuellement requises par chromadb (sqlite, build tools)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Dépendances Python du module grc_ai_assistant
+# --break-system-packages : nécessaire sur les images Debian récentes (PEP 668)
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
+
+USER odoo

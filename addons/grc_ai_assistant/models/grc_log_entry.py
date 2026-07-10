@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from dateutil.relativedelta import relativedelta
+
 from odoo import api, fields, models
 
 
@@ -79,3 +81,46 @@ class GrcLogEntry(models.Model):
         # LogParser(self.env).ingest_ir_logging()
         # LogParser(self.env).ingest_system_files()
         return True
+
+    @api.model
+    def _cron_rgpd_purge(self):
+        """Point d'entrée du cron quotidien RGPD / Loi 09-08 (EF-06) :
+        - anonymise les IP des entrées plus vieilles que le seuil configuré
+          (grc_ai_assistant.ip_anonymization_days, défaut 30 jours),
+        - purge (supprime) les entrées plus vieilles que le seuil de
+          rétention (grc_ai_assistant.log_retention_days, défaut 90 jours).
+        """
+        icp = self.env['ir.config_parameter'].sudo()
+        anonymization_days = int(icp.get_param('grc_ai_assistant.ip_anonymization_days', 30))
+        retention_days = int(icp.get_param('grc_ai_assistant.log_retention_days', 90))
+
+        now = fields.Datetime.now()
+
+        # --- Anonymisation des IP (conserve les 2 premiers octets) ---
+        anonymization_threshold = now - relativedelta(days=anonymization_days)
+        entries_to_anonymize = self.search([
+            ('event_datetime', '<', anonymization_threshold),
+            ('ip_anonymized', '=', False),
+            ('ip_address', '!=', False),
+        ])
+        for entry in entries_to_anonymize:
+            entry.write({
+                'ip_address': self._anonymize_ip(entry.ip_address),
+                'ip_anonymized': True,
+            })
+
+        # --- Purge des journaux au-delà de la durée de rétention ---
+        purge_threshold = now - relativedelta(days=retention_days)
+        entries_to_purge = self.search([('event_datetime', '<', purge_threshold)])
+        entries_to_purge.unlink()
+
+        return True
+
+    @staticmethod
+    def _anonymize_ip(ip_address):
+        """Ne conserve que les 2 premiers octets d'une IPv4 (ex: 192.168.x.x).
+        Retourne l'IP inchangée si le format n'est pas reconnu (ex: IPv6)."""
+        parts = ip_address.split('.')
+        if len(parts) == 4:
+            return f"{parts[0]}.{parts[1]}.0.0"
+        return ip_address
