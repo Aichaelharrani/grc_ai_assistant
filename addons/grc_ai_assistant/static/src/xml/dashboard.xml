@@ -2,47 +2,136 @@
 <templates xml:space="preserve">
 
     <t t-name="grc_ai_assistant.Dashboard">
-        <div class="o_grc_dashboard p-4">
-            <h2 class="mb-4">🛡️ Tableau de bord GRC</h2>
+        <div t-attf-class="o_grc_dashboard {{ state.theme === 'dark' ? 'grc-theme-dark' : '' }}">
 
-            <div t-if="state.loading" class="text-muted">
+            <div class="grc-dash-header">
+                <h2 class="grc-dash-title">🛡️ Tableau de bord GRC</h2>
+                <div class="grc-theme-toggle" t-on-click="toggleTheme">
+                    <t t-if="state.theme === 'dark'">☀️ Mode clair</t>
+                    <t t-else="">🌙 Mode sombre</t>
+                </div>
+            </div>
+
+            <div t-if="state.loading" class="grc-empty-state">
                 Chargement des indicateurs...
             </div>
 
-            <div t-else="" class="row g-3">
-                <div class="col-3">
-                    <div class="card text-center p-3" style="cursor: pointer;"
-                         t-on-click="() => this.openAnomalies([])">
-                        <h3 t-esc="state.totalAnomalies"/>
-                        <div class="text-muted">Anomalies totales</div>
+            <t t-else="">
+                <!-- KPI principaux -->
+                <div class="grc-kpi-grid">
+                    <div class="grc-kpi-card" t-on-click="() => this.openAnomalies([])">
+                        <div class="grc-kpi-icon grc-icon-purple">📊</div>
+                        <div class="grc-kpi-value" t-esc="state.totalAnomalies"/>
+                        <div class="grc-kpi-label">Anomalies totales</div>
                     </div>
-                </div>
-                <div class="col-3">
-                    <div class="card text-center p-3" style="cursor: pointer;"
-                         t-on-click="() => this.openAnomalies([['state', '=', 'new']])">
-                        <h3 t-esc="state.newAnomalies"/>
-                        <div class="text-muted">Nouvelles</div>
+                    <div class="grc-kpi-card" t-on-click="() => this.openAnomalies([['state', '=', 'new']])">
+                        <div class="grc-kpi-icon grc-icon-teal">🆕</div>
+                        <div class="grc-kpi-value" t-esc="state.newAnomalies"/>
+                        <div class="grc-kpi-label">Nouvelles</div>
                     </div>
-                </div>
-                <div class="col-3">
-                    <div class="card text-center p-3 border-danger" style="cursor: pointer;"
+                    <div class="grc-kpi-card grc-critical"
                          t-on-click="() => this.openAnomalies([['risk_level', '=', 'critical']])">
-                        <h3 class="text-danger" t-esc="state.criticalAnomalies"/>
-                        <div class="text-muted">Critiques</div>
+                        <div class="grc-kpi-icon grc-icon-red">⚠️</div>
+                        <div class="grc-kpi-value" t-esc="state.criticalAnomalies"/>
+                        <div class="grc-kpi-label">Critiques</div>
+                    </div>
+                    <div class="grc-kpi-card">
+                        <div class="grc-kpi-icon grc-icon-amber">📈</div>
+                        <div class="grc-kpi-value" t-esc="state.avgRiskScore"/>
+                        <div class="grc-kpi-label">Score de risque moyen</div>
                     </div>
                 </div>
-                <div class="col-3">
-                    <div class="card text-center p-3">
-                        <h3 t-esc="state.avgRiskScore"/>
-                        <div class="text-muted">Score de risque moyen</div>
-                    </div>
-                </div>
-            </div>
 
-            <p class="text-muted mt-4">
-                <em>Version initiale — les graphiques Chart.js (évolution des anomalies,
-                taux de conformité) seront ajoutés dans une prochaine itération.</em>
-            </p>
+                <!-- Répartition par type / par état -->
+                <div class="grc-panels-row">
+                    <div class="grc-panel">
+                        <div class="grc-panel-title">Répartition par type d'anomalie</div>
+                        <div t-if="!state.byType.length" class="grc-empty-state">Aucune donnée</div>
+                        <div t-else="" class="grc-chip-row">
+                            <div t-foreach="state.byType" t-as="item" t-key="item.key"
+                                 class="grc-chip grc-chip-purple">
+                                <span class="grc-chip-value" t-esc="item.count"/>
+                                <span t-esc="item.label"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grc-panel">
+                        <div class="grc-panel-title">Statut des anomalies</div>
+                        <div t-if="!state.byState.length" class="grc-empty-state">Aucune donnée</div>
+                        <div t-else="" class="grc-chip-row">
+                            <div t-foreach="state.byState" t-as="item" t-key="item.key"
+                                 t-attf-class="grc-chip {{ chipClass('state', item.key) }}">
+                                <span class="grc-chip-value" t-esc="item.count"/>
+                                <span t-esc="item.label"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Courbe d'évolution -->
+                <div class="grc-chart-panel">
+                    <div class="grc-panel-title">Évolution des anomalies (14 derniers jours)</div>
+                    <div class="grc-chart-canvas-wrap">
+                        <canvas t-ref="evolutionChart"/>
+                    </div>
+                </div>
+
+                <!-- Heatmap type x niveau de risque -->
+                <div class="grc-heatmap-panel">
+                    <div class="grc-panel-title">Heatmap — Type d'anomalie × Niveau de risque</div>
+                    <table class="grc-heatmap-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th t-foreach="state.heatmap.cols" t-as="col" t-key="col.key" t-esc="col.label"/>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="state.heatmap.rows" t-as="row" t-key="row.key">
+                                <td class="grc-heatmap-row-label" t-esc="row.label"/>
+                                <td t-foreach="state.heatmap.cols" t-as="col" t-key="col.key"
+                                    t-attf-class="{{ heatCellClass(state.heatmap.matrix[row.key][col.key]) }}"
+                                    t-esc="state.heatmap.matrix[row.key][col.key]"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="grc-empty-state" style="margin-top: 10px; font-size: 11px;">
+                        Plus la cellule est foncée/rouge, plus le nombre d'occurrences est élevé.
+                    </div>
+                </div>
+
+                <!-- Dernières anomalies -->
+                <div class="grc-table-panel">
+                    <div class="grc-panel-title">Dernières anomalies détectées</div>
+                    <div t-if="!state.recent.length" class="grc-empty-state">
+                        Aucune anomalie enregistrée pour le moment.
+                    </div>
+                    <table t-else="" class="grc-recent-table">
+                        <thead>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Type</th>
+                                <th>Score</th>
+                                <th>Niveau</th>
+                                <th>État</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="state.recent" t-as="anomaly" t-key="anomaly.id"
+                                t-on-click="() => this.openAnomaly(anomaly.id)">
+                                <td t-esc="anomaly.name"/>
+                                <td t-esc="anomalyTypeLabel(anomaly.anomaly_type)"/>
+                                <td t-esc="anomaly.risk_score"/>
+                                <td>
+                                    <span t-attf-class="{{ riskBadgeClass(anomaly.risk_level) }}"
+                                          t-esc="riskLevelLabel(anomaly.risk_level)"/>
+                                </td>
+                                <td t-esc="stateLabel(anomaly.state)"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
         </div>
     </t>
 

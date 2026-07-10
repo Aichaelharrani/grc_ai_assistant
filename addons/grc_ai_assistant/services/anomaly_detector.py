@@ -51,7 +51,68 @@ class AnomalyDetector:
         log_entries.mark_as_analyzed()
 
     def _detect_brute_force(self, log_entries):
-        _logger.info("GRC AI Assistant: règle brute_force (stub).")
+        """Détecte les tentatives de brute force (EF-02) :
+        N échecs de connexion ou plus (seuil configurable, défaut 5) depuis
+        la même adresse IP en moins de X minutes (défaut 5).
+
+        Convention attendue sur grc.log.entry pour qu'une entrée soit
+        considérée comme un échec de connexion :
+            category = 'auth'  ET  action contient 'fail' (ex: 'login_failed')
+        """
+        threshold = self.thresholds['brute_force_attempts']
+        window_minutes = self.thresholds['brute_force_window_minutes']
+
+        failed_logins = log_entries.filtered(
+            lambda e: e.category == 'auth' and e.action and 'fail' in e.action.lower() and e.ip_address
+        )
+        if not failed_logins:
+            _logger.info("GRC AI Assistant: brute_force - aucun échec de connexion à analyser.")
+            return
+
+        # Regroupement par adresse IP
+        by_ip = {}
+        for entry in failed_logins:
+            by_ip.setdefault(entry.ip_address, self.env['grc.log.entry'])
+            by_ip[entry.ip_address] |= entry
+
+        for ip, entries in by_ip.items():
+            entries = entries.sorted(key=lambda e: e.event_datetime)
+            window = self.env['grc.log.entry']
+
+            for entry in entries:
+                window |= entry
+                # Ne garder dans la fenêtre que les entrées de moins de
+                # `window_minutes` par rapport à la tentative courante
+                window = window.filtered(
+                    lambda e: (entry.event_datetime - e.event_datetime).total_seconds()
+                    <= window_minutes * 60
+                )
+
+                if len(window) >= threshold:
+                    already_flagged = self.env['grc.anomaly'].search([
+                        ('anomaly_type', '=', 'brute_force'),
+                        ('log_entry_id', 'in', window.ids),
+                    ], limit=1)
+                    if already_flagged:
+                        continue
+
+                    self._create_anomaly(
+                        log_entry=entry,  # dernière tentative de la rafale
+                        anomaly_type='brute_force',
+                        risk_score=8.5,
+                        iso_control='A.8.16',
+                        recommendation=(
+                            f"{len(window)} échecs de connexion détectés depuis l'IP "
+                            f"{ip} en moins de {window_minutes} minutes. "
+                            f"Recommandation : bloquer temporairement l'IP et forcer "
+                            f"une réinitialisation MFA pour le(s) compte(s) ciblé(s)."
+                        ),
+                    )
+                    _logger.info(
+                        "GRC AI Assistant: anomalie brute_force créée pour IP %s (%d tentatives).",
+                        ip, len(window),
+                    )
+                    window = self.env['grc.log.entry']  # reset après création
 
     def _detect_off_hours_access(self, log_entries):
         _logger.info("GRC AI Assistant: règle off_hours_access (stub).")

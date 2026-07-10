@@ -72,6 +72,22 @@ class GrcLogEntry(models.Model):
             'analyzed_date': fields.Datetime.now(),
         })
 
+    def action_run_detection(self):
+        """Action déclenchable manuellement depuis la vue liste des journaux
+        (menu Action) : lance le moteur de détection sur les entrées
+        sélectionnées, ou sur toutes les entrées non analysées si aucune
+        sélection n'est faite. Utile pour tester/démontrer la détection
+        sans attendre le cron horaire."""
+        entries = self.filtered(lambda e: not e.is_analyzed)
+        if not entries:
+            entries = self.search([('is_analyzed', '=', False)])
+        if not entries:
+            return
+
+        from ..services.anomaly_detector import AnomalyDetector
+        AnomalyDetector(self.env).run_detection(entries)
+        return True
+
     @api.model
     def _cron_ingest_logs(self):
         """Point d'entrée du cron d'ingestion horaire (data/ir_cron_data.xml).

@@ -45,6 +45,7 @@ Développé dans le cadre du stage PFA - TRUSTIZI (INT/2026/0033).
         'data/ir_sequence_data.xml',
         'data/ir_cron_data.xml',
         'data/ir_config_parameter_data.xml',
+        'data/ir_actions_server_data.xml',
 
         # Vues
         'views/grc_log_entry_views.xml',
@@ -58,6 +59,8 @@ Développé dans le cadre du stage PFA - TRUSTIZI (INT/2026/0033).
 
     'assets': {
         'web.assets_backend': [
+            'grc_ai_assistant/static/lib/chartjs/chart.umd.min.js',
+            'grc_ai_assistant/static/src/css/dashboard.css',
             'grc_ai_assistant/static/src/js/dashboard.js',
             'grc_ai_assistant/static/src/xml/dashboard.xml',
         ],
